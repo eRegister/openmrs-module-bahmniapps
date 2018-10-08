@@ -1,7 +1,7 @@
 'use strict';
 
-//seeing the commit will reflect on Slack github
-//
+//seeing if the commit will reflect on Slack github
+//did more configs
 
 angular.module('bahmni.registration')
     .controller('SearchPatientController', ['$rootScope', '$scope', '$location', '$window', 'spinner', 'patientService', 'appService',
