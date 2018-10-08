@@ -283,6 +283,7 @@ angular.module('bahmni.clinical').controller('ConsultationController',
             };
 
             var switchToConsultationTab = function () {
+                console.log("SWITCHING TO CONSULTATION TAB!!!!");
                 if ($scope.lastConsultationTabUrl.url) {
                     $location.url($scope.lastConsultationTabUrl.url);
                 } else {
@@ -437,6 +438,7 @@ angular.module('bahmni.clinical').controller('ConsultationController',
             };
 
             $scope.save = function (toStateConfig) {
+                console.log("SAVING THE OBSERVATION FORMS!!!!");
                 if (!isFormValid()) {
                     $scope.$parent.$parent.$broadcast("event:errorsOnForm");
                     return $q.when({});

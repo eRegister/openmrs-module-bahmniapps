@@ -274,7 +274,7 @@ angular.module('bahmni.ot')
                 ngDialog.open({
                     template: "views/cancelSurgicalBlock.html",
                     closeByDocument: false,
-                    controller: "cancelSurgicalBlockController",
+                    controller: "cancelSurgicalBlockPopUpController",
                     className: 'ngdialog-theme-default ng-dialog-adt-popUp',
                     showClose: true,
                     data: {
