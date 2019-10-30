@@ -173,6 +173,19 @@ angular.module('consultation')
                     }
                 }
             })
+            .state('patient.dashboard.show.sharedhealthrecord', {
+                url: '/shared-health-record/search',
+                params: {
+                    cachebuster: null,
+                    lastOpenedTemplate: null
+                },
+                views: {
+                    'consultation-content': {
+                        templateUrl: 'consultation/views/sharedRecord.html',
+                        controller: 'SharedRecordPageController'
+                    }
+                }
+            })
             .state('patient.dashboard.show.diagnosis', {
                 url: '/diagnosis',
                 params: {
@@ -457,13 +470,16 @@ angular.module('consultation')
                 moment.locale($window.localStorage["NG_TRANSLATE_LANG_KEY"] || "en");
                 FastClick.attach(document.body);
                 stateChangeSpinner.activate();
+
                 var cleanUpStateChangeSuccess = $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
                     auditLogService.log(toParams.patientUuid, Bahmni.Clinical.StateNameEvenTypeMap[toState.name], undefined, "MODULE_LABEL_CLINICAL_KEY");
                     $window.scrollTo(0, 0);
                 });
+
                 var cleanUpNgDialogOpened = $rootScope.$on('ngDialog.opened', function () {
                     $('html').addClass('ngdialog-open');
                 });
+
                 var cleanUpNgDialogClosing = $rootScope.$on('ngDialog.closing', function () {
                     $('html').removeClass('ngdialog-open');
                 });

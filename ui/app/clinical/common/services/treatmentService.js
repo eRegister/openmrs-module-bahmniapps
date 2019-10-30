@@ -50,8 +50,8 @@ angular.module('bahmni.clinical')
             var programConfig = getProgramConfig();
             var startDate = programConfig.showDetailsWithinDateRange ? fromDate : null;
             var endDate = programConfig.showDetailsWithinDateRange ? toDate : null;
-
             var deferred = $q.defer();
+
             getActiveDrugOrdersFromServer(patientUuid, startDate, endDate).success(function (response) {
                 var activeDrugOrders = response.map(createDrugOrder);
                 deferred.resolve(activeDrugOrders);

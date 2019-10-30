@@ -26,8 +26,13 @@ angular
                 url: '/search',
                 reloadOnSearch: false,
                 views: {
-                    'layout': {templateUrl: 'views/layout.html', controller: 'SearchPatientController'},
-                    'content@search': {templateUrl: 'views/search.html'}
+                    'layout': {
+                        templateUrl: 'views/layout.html',
+                        controller: 'SearchPatientController'
+                    },
+                    'content@search': {
+                        templateUrl: 'views/search.html'
+                    }
                 },
                 resolve: {
                     initialize: function (initialization) {

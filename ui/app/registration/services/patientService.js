@@ -29,13 +29,15 @@ angular.module('bahmni.registration')
             };
             return patientServiceStrategy.search(config);
         };
-        var searchHIE = function (query, identifier, addressFieldName, addressFieldValue, customAttributeValue,
+        var searchHIE = function (query, identifier, nationalId, gender, addressFieldName, addressFieldValue, customAttributeValue,
                                offset, customAttributeFields, programAttributeFieldName, programAttributeFieldValue, addressSearchResultsConfig,
                                patientSearchResultsConfig, filterOnAllIdentifiers) {
             var config = {
                 params: {
                     q: query,
                     identifier: identifier,
+                    nationalId: nationalId,
+                    gender: gender,
                     s: "byIdOrNameOrVillage",
                     addressFieldName: addressFieldName,
                     addressFieldValue: addressFieldValue,
@@ -99,6 +101,13 @@ angular.module('bahmni.registration')
             return patientServiceStrategy.update(patient, openMRSPatient, $rootScope.patientConfiguration.attributeTypes);
         };
 
+        var importPatient = function (patient) {
+            var config = {
+                withCredentials: true
+            };
+            return patientServiceStrategy.importPatient(patient, config);
+        };
+
         var updateImage = function (uuid, image) {
             var url = baseOpenMRSRESTURL + "/personimage/";
             var data = {
@@ -118,6 +127,7 @@ angular.module('bahmni.registration')
             searchByIdentifier: searchByIdentifier,
             create: create,
             update: update,
+            importPatient: importPatient,
             get: get,
             updateImage: updateImage,
             searchByNameOrIdentifier: searchByNameOrIdentifier

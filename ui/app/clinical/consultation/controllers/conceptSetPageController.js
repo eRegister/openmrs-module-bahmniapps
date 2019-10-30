@@ -11,8 +11,10 @@ angular.module('bahmni.clinical')
             $scope.allTemplates = $scope.allTemplates || [];
             $scope.scrollingEnabled = false;
             var extensions = clinicalAppConfigService.getAllConceptSetExtensions($stateParams.conceptSetGroupName);
+
             var configs = clinicalAppConfigService.getAllConceptsConfig();
             var visitType = configurations.encounterConfig().getVisitTypeByUuid($scope.consultation.visitTypeUuid);
+
             $scope.context = {visitType: visitType, patient: $scope.patient};
             var numberOfLevels = 2;
             var fields = ['uuid', 'name:(name,display)', 'names:(uuid,conceptNameType,name)'];
@@ -26,7 +28,9 @@ angular.module('bahmni.clinical')
                         v: "custom:" + customRepresentation
                     }).then(function (response) {
                         var allTemplates = response.data.results[0].setMembers;
+
                         createConceptSections(allTemplates);
+
                         if ($state.params.programUuid) {
                             showOnlyTemplatesFilledInProgram();
                         }
@@ -155,7 +159,9 @@ angular.module('bahmni.clinical')
                     var conceptSetExtension = _.find(extensions, function (extension) {
                         return extension.extensionParams.conceptName === template.name.name;
                     }) || {};
+
                     var conceptSetConfig = configs[template.name.name] || {};
+
                     var observationsForTemplate = getObservationsForTemplate(template);
                     if (observationsForTemplate && observationsForTemplate.length > 0) {
                         _.each(observationsForTemplate, function (observation) {
@@ -168,8 +174,10 @@ angular.module('bahmni.clinical')
             };
 
             var collectObservationsFromConceptSets = function () {
+                // Checking where the formObservations are populated : Teboho
                 $scope.consultation.observations = [];
                 _.each($scope.consultation.selectedObsTemplate, function (conceptSetSection) {
+                    // Checking where the formObservations are populated : Teboho
                     if (conceptSetSection.observations[0]) {
                         $scope.consultation.observations.push(conceptSetSection.observations[0]);
                     }
@@ -222,6 +230,8 @@ angular.module('bahmni.clinical')
             // Form Code :: Start
             var getObservationForms = function (observationsForms) {
                 var forms = [];
+
+                // Checking where the formObservation is populated : Teboho
                 var observations = $scope.consultation.observations || [];
                 _.each(observationsForms, function (observationForm) {
                     var formUuid = observationForm.formUuid || observationForm.uuid;

@@ -22,14 +22,11 @@ angular.module('bahmni.registration')
         };
         var searchHIE = function (config) {
             var defer = $q.defer();
-            var patientSearchUrl = Bahmni.Common.Constants.bahmniSearchUrl + "/patient";
+            var patientSearchUrl = Bahmni.Common.Constants.bahmniSearchUrl + "/mpipatient";
             if (config && config.params.identifier) {
-                patientSearchUrl = Bahmni.Common.Constants.bahmniSearchUrl + "/patient/lucene";
+                patientSearchUrl = Bahmni.Common.Constants.bahmniSearchUrl + "/mpipatient/exact";
             }
             var onResults = function (result) {
-                console.log("INSIDE THE HIE SEARCH FUNTION!!!!!!");
-                console.log(result);
-                console.log("ENDING THE HIE SEARCH FUNTION!!!!");
                 defer.resolve(result);
             };
             $http.get(patientSearchUrl, config).success(onResults)
@@ -38,6 +35,21 @@ angular.module('bahmni.registration')
                 });
             return defer.promise;
         };
+
+        var importPatient = function (patient, config) {
+            var defer = $q.defer();
+            var importPatientUrl = Bahmni.Common.Constants.bahmniSearchUrl + "/mpipatient" + "?patientEcid=" + patient.identifier;
+
+            var onResults = function (result) {
+                defer.resolve(result);
+            };
+            $http.post(importPatientUrl, config).success(onResults)
+                .error(function (error) {
+                    defer.reject(error);
+                });
+            return defer.promise;
+        };
+
         var getByUuid = function (uuid) {
             var url = openmrsUrl + "/ws/rest/v1/patientprofile/" + uuid;
             var config = {
@@ -94,6 +106,7 @@ angular.module('bahmni.registration')
             get: getByUuid,
             create: create,
             update: update,
+            importPatient: importPatient,
             generateIdentifier: generateIdentifier
         };
     }]);

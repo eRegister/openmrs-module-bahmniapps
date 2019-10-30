@@ -85,6 +85,8 @@ angular.module('bahmni.clinical').controller('ConsultationController',
             };
 
             $scope.availableBoards = [];
+            $scope.sharedhealthrecordBoards = [];
+
             $scope.configName = $stateParams.configName;
 
             $scope.getTitle = function (board) {
@@ -146,8 +148,10 @@ angular.module('bahmni.clinical').controller('ConsultationController',
 
             var initialize = function () {
                 var appExtensions = clinicalAppConfigService.getAllConsultationBoards();
+                var appExtensionsSHR = clinicalAppConfigService.getAllSharedHealthRecordBoards();
                 $scope.adtNavigationConfig = {forwardUrl: Bahmni.Clinical.Constants.adtForwardUrl, title: $translate.instant("CLINICAL_GO_TO_DASHBOARD_LABEL"), privilege: Bahmni.Clinical.Constants.adtPrivilege };
                 $scope.availableBoards = $scope.availableBoards.concat(appExtensions);
+                $scope.sharedhealthrecordBoards = $scope.sharedhealthrecordBoards.concat(appExtensionsSHR);
                 $scope.showSaveConfirmDialogConfig = appService.getAppDescriptor().getConfigValue('showSaveConfirmDialog');
                 var adtNavigationConfig = appService.getAppDescriptor().getConfigValue('adtNavigationConfig');
                 Object.assign($scope.adtNavigationConfig, adtNavigationConfig);
@@ -268,7 +272,9 @@ angular.module('bahmni.clinical').controller('ConsultationController',
                     url = url + "?" + queryParams.join("&");
                 }
 
-                $scope.lastConsultationTabUrl.url = url;
+                if (board.extensionPointId !== 'org.bahmni.clinical.sharedhealthrecord.board') {
+                    $scope.lastConsultationTabUrl.url = url;
+                }
                 return $location.url(url);
             };
 
@@ -282,14 +288,31 @@ angular.module('bahmni.clinical').controller('ConsultationController',
                 switchToConsultationTab();
             };
 
+            $scope.opensharedhealthrecord = function () {
+                if ($scope.showSaveConfirmDialogConfig) {
+                    $rootScope.$broadcast("event:pageUnload");
+                }
+                $scope.closeAllDialogs();
+                $scope.collapseControlPanel();
+                switchToSharedHealthRecordTab();
+            };
+
+            $scope.isCurrentUrlShr = function () {
+                var currentUrl = $location.path();
+                return _($location.path()).includes("/shared-health-record/search") ? true : false;
+            };
+
             var switchToConsultationTab = function () {
-                console.log("SWITCHING TO CONSULTATION TAB!!!!");
                 if ($scope.lastConsultationTabUrl.url) {
                     $location.url($scope.lastConsultationTabUrl.url);
                 } else {
-                    // Default tab
                     getUrl($scope.availableBoards[0]);
                 }
+            };
+
+            var switchToSharedHealthRecordTab = function () {
+                $location.url("/shared-health-record/search");
+                getUrl($scope.sharedhealthrecordBoards[0]);
             };
 
             var contextChange = function () {
@@ -438,7 +461,6 @@ angular.module('bahmni.clinical').controller('ConsultationController',
             };
 
             $scope.save = function (toStateConfig) {
-                console.log("SAVING THE OBSERVATION FORMS!!!!");
                 if (!isFormValid()) {
                     $scope.$parent.$parent.$broadcast("event:errorsOnForm");
                     return $q.when({});
