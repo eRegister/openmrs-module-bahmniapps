@@ -174,10 +174,8 @@ angular.module('bahmni.clinical')
             };
 
             var collectObservationsFromConceptSets = function () {
-                // Checking where the formObservations are populated : Teboho
                 $scope.consultation.observations = [];
                 _.each($scope.consultation.selectedObsTemplate, function (conceptSetSection) {
-                    // Checking where the formObservations are populated : Teboho
                     if (conceptSetSection.observations[0]) {
                         $scope.consultation.observations.push(conceptSetSection.observations[0]);
                     }

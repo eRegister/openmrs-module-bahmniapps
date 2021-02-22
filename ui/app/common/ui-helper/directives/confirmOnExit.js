@@ -9,7 +9,6 @@ angular.module('bahmni.common.uiHelper')
                         return $translate.instant("BROWSER_CLOSE_DIALOG_MESSAGE_KEY");
                     };
                 });
-
                 $scope.$on("$destroy", cleanUpListenerPageUnload);
             }
         };

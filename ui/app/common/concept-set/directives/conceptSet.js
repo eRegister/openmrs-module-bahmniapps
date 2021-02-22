@@ -218,7 +218,7 @@ angular.module('bahmni.common.conceptSet')
                     }
                 };
 
-                var setObservationState = function (obsArray, disable, error, hide) {
+                var setObservationState = function (obsArray, disable, error, hide, obsValue) {
                     if (!_.isEmpty(obsArray)) {
                         _.each(obsArray, function (obs) {
                             // TODO: If initial regimen is not present for ART Regimen, always enable - Teboho
@@ -231,6 +231,18 @@ angular.module('bahmni.common.conceptSet')
                             if (hide || obs.disabled) {
                                 clearFieldValuesOnDisabling(obs);
                             }
+
+                            // TODO : Hack for assigning values to an obs - Teboho
+                            // Have generalize this code and remove explicit mention of the concept name i.e. HIVTC, ARV drugs supply duration maybe load obsValue with conceptName
+                            // NB: Currently only works for "Drug Supply duration" and "ARV drugs No. of days dispensed"
+                            if (obsValue && obs.concept.dataType == "Numeric" && obs.concept.name == "ARV drugs No. of days dispensed") {
+                                obs.value = obsValue;
+                            } else if (obsValue && obs.concept.dataType == "Coded" && obs.concept.name == "HIVTC, ARV drugs supply duration") {
+                                obs.value = _.find(obs.possibleAnswers, { displayString: obsValue });
+                            } else if (!obsValue && obs.concept.dataType == "Coded" && obs.concept.name == "HIVTC, ARV drugs supply duration") {
+                                obs.value = undefined;
+                            }
+
                             if (obs.groupMembers) {
                                 _.each(obs.groupMembers, function (groupMember) {
                                     // TODO : Hack to fix issue with formconditions on multiselect - Swathi
@@ -241,21 +253,26 @@ angular.module('bahmni.common.conceptSet')
                     }
                 };
 
-                var processConditions = function (flattenedObs, fields, disable, error, hide) {
+                var processConditions = function (flattenedObs, fields, disable, error, hide, assingvalue) {
                     _.each(fields, function (field) {
                         var matchingObsArray = [];
+                        var obsValue;
                         var clonedObsInSameGroup;
                         flattenedObs.forEach(function (obs) {
-                            if (clonedObsInSameGroup != false && obs.concept.name == field) {
+                            if (clonedObsInSameGroup != false && (obs.concept.name == field || (field.field && obs.concept.name == field.field))) {
                                 matchingObsArray.push(obs);
                                 clonedObsInSameGroup = true;
-                            } else if (clonedObsInSameGroup && obs.concept.name != field) {
+
+                                if (field.field) {
+                                    obsValue = field.fieldValue;
+                                }
+                            } else if (clonedObsInSameGroup && (obs.concept.name != field || (field.field && obs.concept.name != field.field))) {
                                 clonedObsInSameGroup = false;
                             }
                         });
 
                         if (!_.isEmpty(matchingObsArray)) {
-                            setObservationState(matchingObsArray, disable, error, hide);
+                            setObservationState(matchingObsArray, disable, error, hide, obsValue);
                         } else {
                             messagingService.showMessage("error", "No element found with name : " + field);
                         }
@@ -270,7 +287,9 @@ angular.module('bahmni.common.conceptSet')
                                 conceptSetValueMap[conceptName.split('|')[0]] = obsValue;
                                 return conceptSetValueMap;
                             }, {});
+
                             var conditions = formCondition(formName, valueMap, $scope.patient);
+
                             if (!_.isUndefined(conditions)) {
                                 if (conditions.error && !_.isEmpty(conditions.error)) {
                                     messagingService.showMessage('error', conditions.error);
@@ -278,10 +297,13 @@ angular.module('bahmni.common.conceptSet')
                                 } else {
                                     enableCase && processConditions(flattenedObs, [conceptName], false, false, false);
                                 }
+
                                 processConditions(flattenedObs, conditions.disable, true);
                                 processConditions(flattenedObs, conditions.enable, false);
                                 processConditions(flattenedObs, conditions.show, false, undefined, false);
                                 processConditions(flattenedObs, conditions.hide, false, undefined, true);
+                                processConditions(flattenedObs, conditions.assignedValues, false, undefined, false, true);
+
                                 _.each(conditions.enable, function (subConditionConceptName) {
                                     var conditionFn = Bahmni.ConceptSet.FormConditions.rules && Bahmni.ConceptSet.FormConditions.rules[subConditionConceptName];
                                     if (conditionFn != null) {
